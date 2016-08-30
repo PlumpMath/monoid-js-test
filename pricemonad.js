@@ -73,13 +73,12 @@ ProductList.prototype.getTotals = function(){
 ProductList.prototype.getTotalsHT = function(){
     // Consider quantity
     if(this.products.length === 1) {
-        const p = this.products[0];
-        return p.price.includeTax(p.tax, this);
+        return this.products[0].includeTax(this).price;
     }
-    const sumPrice = this.products.map(p => p.price).reduce((p1, p2, i) => {
-        const p1ht = p1.includeTax(this.products[i - 1].tax, this);
-        const p2ht = p2.includeTax(this.products[i].tax, this)
-        return p1ht.add(p2ht);
+    const sumPrice = this.products
+    .map(p => p.includeTax(this).price)
+    .reduce((p1, p2) => {
+        return p1.add(p2);
     });
     return sumPrice;
 }
@@ -144,10 +143,9 @@ const pl = new ProductList([p1, p2, remise]);
 
 const cart = new Cart({id: 'cart_1', productList: pl});
 
-// console.log(remise.price.includeTax(remise.tax, pl).printable);
 console.log(JSON.stringify(cart.getFacture(), null, '  '));
 
-// console.log('\n=====================================\n');
+console.log('\n=====================================\n');
 
 const p3 = new Product({id:1, name: 'a', tax: 0.2, price: new Price({amount:14.5, currency: '€'})});
 const remise2 = new Remise({id:3, name: 'remise', price: new Price({amount:-5, currency: '€'})});
