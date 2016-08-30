@@ -22,7 +22,7 @@ Price.prototype.includeTax = function(tax, productList) {
     return new Price({
         amount: this.amount * factor,
         currency: this.currency,
-        operations: `${this.operations} * ${factor} (tax of ${taxValue})`
+        operations: `${this.operations} * ${factor} (tax of ${taxValue*100}%)`
     })
 }
 
@@ -121,8 +121,6 @@ Cart.prototype.getFacture = function(){
                 totalTaxeIncl: p.price.printable
             })),
         'Totals': {
-           'Total produits' : this.getTotals(),
-           'Total HT': this.getTotalsHT(),
            'Remises': this.productList.products
             .filter(p => !p.listable)
             .map(p => ({
@@ -131,6 +129,8 @@ Cart.prototype.getFacture = function(){
                 totalTaxeIncl: p.price.printable,
                 totalHT: p.price.includeTax(p.tax, this.productList).printable
             })),
+           'Total produits' : this.getTotals(),
+           'Total HT': this.getTotalsHT(),
         }
     }
 }
