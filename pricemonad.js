@@ -1,5 +1,6 @@
 const round = (num) => (Math.trunc(num*100) / 100);
 
+/******************* Price *******************/
 const Price = function({amount, currency, operations}) {
     this.amount = amount;
     this.currency = currency;
@@ -31,6 +32,7 @@ Price.prototype.includeTax = function(tax, productList) {
 Price.zero = currency => new Price({amount: 0, operations: '', currency});
 
 
+/******************* Product *******************/
 const Product = function({id, name, price, tax, listable}) {
     this.id = id;
     this.name = name;
@@ -49,6 +51,7 @@ Product.prototype.includeTax = function(plist) {
     );
 }
 
+/******************* Remise *******************/
 const Remise = function({id, name, price}) {
     return new Product({
         id,
@@ -59,6 +62,8 @@ const Remise = function({id, name, price}) {
     });
 }
 
+
+/******************* Product List *******************/
 const ProductList = function(products){
     this.products = products;
 }
@@ -106,6 +111,7 @@ const Cart = function({id, productList}){
     this.productList = productList;
 }
 
+/******************* Cart *******************/
 Cart.prototype.addProduct = p => {
     this.productList = this.productList.addProduct(p);
 }
@@ -136,6 +142,9 @@ Cart.prototype.getFacture = function(){
     }
 }
 
+
+
+/******************* Examples *******************/
 const p1 = new Product({id:1, name: 'a', tax: 0.1, price: new Price({amount:10, currency: '€'})});
 const p2 = new Product({id:2, name: 'b', tax: 0.2, price: new Price({amount:20, currency: '€'})});
 const remise = new Remise({id:3, name: 'remise',price: new Price({amount:-5, currency: '€'})});
