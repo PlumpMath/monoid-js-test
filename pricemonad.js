@@ -1,3 +1,5 @@
+const round = (num) => (Math.trunc(num*100) / 100);
+
 const Price = function({amount, currency, operations}) {
     this.amount = amount;
     this.currency = currency;
@@ -20,9 +22,9 @@ Price.prototype.includeTax = function(tax, productList) {
     const taxValue = tax instanceof Function ? tax(productList) : tax;
     const factor = 1 - Math.abs(taxValue);
     return new Price({
-        amount: this.amount * factor,
+        amount: round(this.amount * factor),
         currency: this.currency,
-        operations: `${this.operations} * ${factor} (tax of ${taxValue*100}%)`
+        operations: `${this.operations} * ${factor} (tax of ${round(taxValue*100)}%)`
     })
 }
 
@@ -116,7 +118,7 @@ Cart.prototype.getFacture = function(){
         'Products': this.productList.products
             .filter(p => p.listable)
             .map(p => ({
-                tax: p.tax,
+                tax: `${round(p.tax*100)}%`,
                 name: p.name,
                 totalTaxeIncl: p.price.printable
             })),
@@ -124,7 +126,6 @@ Cart.prototype.getFacture = function(){
            'Remises': this.productList.products
             .filter(p => !p.listable)
             .map(p => ({
-                tax: p.tax,
                 name: p.name,
                 totalTaxeIncl: p.price.printable,
                 totalHT: p.price.includeTax(p.tax, this.productList).printable
