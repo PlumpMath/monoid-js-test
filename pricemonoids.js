@@ -169,7 +169,7 @@ Cart.prototype.getFacture = function(){
             .map(p => ({
                 name: p.name,
                 'total (TTC)': p.price.printable,
-                'total (HC)': p.price.includeTax(p.tax, this.productList).printable
+                'total (HC)': p.removeTax(this.productList).price.printable
             })),
            'Total products (TTC)' : this.getTotals(),
            'Total HT': this.getTotalsHT(),
@@ -184,7 +184,7 @@ const p1 = new Product({id:1, name: 'a', quantity: 1, tax: 0.1, price: new Price
 const p2 = new Product({id:2, name: 'b', tax: 0.2, price: new Price({amount:12, currency: '€'})});
 const remise = new Remise({id:3, name: 'remise',price: new Price({amount:-5, currency: '€'})});
 
-const pl = new ProductList([p1, p2/*, remise*/]);
+const pl = new ProductList([p1, p2, remise]);
 
 const cart = new Cart({id: 'cart_1', productList: pl});
 
