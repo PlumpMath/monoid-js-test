@@ -19,6 +19,14 @@ Price.prototype.add = function(p) {
     });
 }
 
+Price.prototype.multiplyFactor = function(f) {
+    return new Price({
+        amount: round(this.amount * f),
+        currency: this.currency,
+        operations: `${this.operations} * ${f}(qty)`
+    });
+}
+
 Price.prototype.includeTax = function(tax, productList) {
     const taxValue = tax instanceof Function ? tax(productList) : tax;
     const factor = 1 - Math.abs(taxValue);
@@ -33,12 +41,14 @@ Price.zero = currency => new Price({amount: 0, operations: '', currency});
 
 
 /******************* Product *******************/
-const Product = function({id, name, price, tax, listable}) {
+const Product = function({id, name, price, tax, quantity, listable}) {
     this.id = id;
     this.name = name;
     this.price = price;
     this.tax = tax || 0;
+    this.quantity = quantity !== undefined ? quantity : 1;
     this.listable = listable !== undefined ? listable : true;
+    this.total = this.price.multiplyFactor(this.quantity).printable;
 }
 
 Product.prototype.includeTax = function(plist) {
@@ -57,6 +67,7 @@ const Remise = function({id, name, price}) {
         id,
         name,
         listable: false,
+        quantity: 1,
         tax: productList => productList.getAvgTax(),
         price
     });
@@ -71,19 +82,20 @@ const ProductList = function(products){
 ProductList.prototype.getTotals = function(){
     // Consider quantity
     if(this.products.length === 1) {
-        return this.products[0].price;
+        const p = this.products[0];
+        return p.price.multiplyFactor(p.quantity);
     }
-    const sumPrice = this.products.map(p => p.price).reduce((price, nextPrice) => price.add(nextPrice));
+    const sumPrice = this.products.map(p => p.price.multiplyFactor(p.quantity)).reduce((price, nextPrice) => price.add(nextPrice));
     return sumPrice;
 }
 
 ProductList.prototype.getTotalsHT = function(){
     // Consider quantity
     if(this.products.length === 1) {
-        return this.products[0].includeTax(this).price;
+        return this.products[0].removeTax(this).price;
     }
     const sumPrice = this.products
-    .map(p => p.includeTax(this).price)
+    .map(p => p.removeTax(this).price.multiplyFactor(p.quantity))
     .reduce((p1, p2) => {
         return p1.add(p2);
     });
@@ -145,8 +157,8 @@ Cart.prototype.getFacture = function(){
 
 
 /******************* Examples *******************/
-const p1 = new Product({id:1, name: 'a', tax: 0.1, price: new Price({amount:10, currency: '€'})});
-const p2 = new Product({id:2, name: 'b', tax: 0.2, price: new Price({amount:20, currency: '€'})});
+const p1 = new Product({id:1, name: 'a', quantity: 1, tax: 0.1, price: new Price({amount:10, currency: '€'})});
+const p2 = new Product({id:2, name: 'b', tax: 0.2, price: new Price({amount:12, currency: '€'})});
 const remise = new Remise({id:3, name: 'remise',price: new Price({amount:-5, currency: '€'})});
 
 const pl = new ProductList([p1, p2, remise]);
