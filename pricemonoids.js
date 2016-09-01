@@ -128,8 +128,9 @@ ProductList.prototype.getAvgTax = function(){
 }
 
 ProductList.prototype.add = function(pl){
-    // Possibly group products
-    return new ProductList(this.products.concat(pl.products));
+    // Possibly group products by id
+    const products = this.products.concat(pl);
+    return new ProductList(products);
 }
 
 ProductList.prototype.addProduct = function(p){
