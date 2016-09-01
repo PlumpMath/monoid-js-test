@@ -162,15 +162,16 @@ Cart.prototype.getFacture = function(){
                 'price (TTC)': p.price.printable,
                 'price (HT)': p.removeTax(this.productList).price.printable,
                 quantity: p.quantity,
-                'total (TTC)': p.total
+                'total (TTC)': p.total,
+                'total (HT)': p.removeTax(this.productList).total
             })),
         'Totals': {
            'Remises': this.productList.products
             .filter(p => !p.listable)
             .map(p => ({
                 name: p.name,
-                'total (TTC)': p.price.printable,
-                'total (HC)': p.removeTax(this.productList).price.printable
+                'total (TTC)': p.total,
+                'total (HC)': p.removeTax(this.productList).total
             })),
            'Total products (TTC)' : this.getTotals(),
            'Total HT': this.getTotalsHT(),
@@ -181,7 +182,7 @@ Cart.prototype.getFacture = function(){
 
 
 /******************* Examples *******************/
-const p1 = new Product({id:1, name: 'a', quantity: 1, tax: 0.1, price: new Price({amount:10, currency: '€'})});
+const p1 = new Product({id:1, name: 'a', quantity: 2, tax: 0.1, price: new Price({amount:10, currency: '€'})});
 const p2 = new Product({id:2, name: 'b', tax: 0.2, price: new Price({amount:12, currency: '€'})});
 const remise = new Remise({id:3, name: 'remise',price: new Price({amount:-5, currency: '€'})});
 
