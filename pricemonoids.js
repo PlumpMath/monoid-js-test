@@ -27,8 +27,8 @@ Price.prototype.multiplyFactor = function(f) {
     });
 }
 
-Price.prototype.includeTax = function(tax, productList) {
-    const taxValue = tax instanceof Function ? tax(productList) : tax;
+Price.prototype.includeTax = function(tax) {
+    const taxValue = tax instanceof Function ? tax() : tax;
     const factor = 1 - Math.abs(taxValue);
     return new Price({
         amount: round(this.amount * factor),
@@ -37,8 +37,8 @@ Price.prototype.includeTax = function(tax, productList) {
     })
 }
 
-Price.prototype.removeTax = function(tax, productList) {
-    const taxValue = tax instanceof Function ? tax(productList) : tax;
+Price.prototype.removeTax = function(tax) {
+    const taxValue = tax instanceof Function ? tax() : tax;
     const factor = 1 + Math.abs(taxValue);
     return new Price({
         amount: round(this.amount / factor),
@@ -61,22 +61,22 @@ const Product = function({id, name, price, tax, quantity, listable}) {
     this.total = this.price.multiplyFactor(this.quantity).printable;
 }
 
-Product.prototype.includeTax = function(plist) {
+Product.prototype.includeTax = function() {
     return new Product(
         Object.assign(
             {},
             this,
-            { price: this.price.includeTax(this.tax, plist)}
+            { price: this.price.includeTax(this.tax)}
         )
     );
 }
 
-Product.prototype.removeTax = function(plist) {
+Product.prototype.removeTax = function() {
     return new Product(
         Object.assign(
             {},
             this,
-            { price: this.price.removeTax(this.tax, plist)}
+            { price: this.price.removeTax(this.tax)}
         )
     );
 }
@@ -88,7 +88,9 @@ const Remise = function({id, name, price}) {
         name,
         listable: false,
         quantity: 1,
-        tax: productList => productList.getAvgTax(),
+        tax: () => {
+            throw new Error('Cannot calculate taxes until inserted in a product list');
+        },
         price
     });
 }
@@ -96,7 +98,16 @@ const Remise = function({id, name, price}) {
 
 /******************* Product List *******************/
 const ProductList = function(products){
-    this.products = products;
+    this.products = this._evaluateProducts(products);
+}
+
+ProductList.prototype._evaluateProducts = function(products){
+    return products.map(p => {
+        if(!p.listable){
+            p.tax = () => this.getAvgTax();
+        }
+        return p;
+    });
 }
 
 ProductList.prototype.getTotals = function(){
@@ -115,7 +126,7 @@ ProductList.prototype.getTotalsHT = function(){
         return this.products[0].removeTax(this).price;
     }
     const sumPrice = this.products
-    .map(p => p.removeTax(this).price.multiplyFactor(p.quantity))
+    .map(p => p.removeTax().price.multiplyFactor(p.quantity))
     .reduce((p1, p2) => {
         return p1.add(p2);
     });
@@ -127,14 +138,18 @@ ProductList.prototype.getAvgTax = function(){
     return listable.map(p => p.tax).reduce((t1, t2) => (t1 + t2), 0) / listable.length;
 }
 
-ProductList.prototype.add = function(pl){
+ProductList.prototype.add = function(productList){
     // Possibly group products by id
-    const products = this.products.concat(pl);
+    const products = this.products.concat(productList.products);
     return new ProductList(products);
 }
 
-ProductList.prototype.addProduct = function(p){
-    return this.add([p]);
+ProductList.prototype.addProduct = function(product){
+    return this.addProducts([product]);
+}
+
+ProductList.prototype.addProducts = function(products){
+    return this.add(new ProductList(products));
 }
 
 ProductList.empty = () => new ProductList([]);
@@ -160,10 +175,10 @@ Cart.prototype.getFacture = function(){
                 name: p.name,
                 tax: `${round(p.tax*100)}%`,
                 'price (TTC)': p.price.printable,
-                'price (HT)': p.removeTax(this.productList).price.printable,
+                'price (HT)': p.removeTax().price.printable,
                 quantity: p.quantity,
                 'total (TTC)': p.total,
-                'total (HT)': p.removeTax(this.productList).total
+                'total (HT)': p.removeTax().total
             })),
         'Totals': {
            'Remises': this.productList.products
@@ -171,7 +186,7 @@ Cart.prototype.getFacture = function(){
             .map(p => ({
                 name: p.name,
                 'total (TTC)': p.total,
-                'total (HC)': p.removeTax(this.productList).total
+                'total (HC)': p.removeTax().total
             })),
            'Total products (TTC)' : this.getTotals(),
            'Total HT': this.getTotalsHT(),
@@ -188,7 +203,8 @@ const remise = new Remise({id:3, name: 'remise',price: new Price({amount:-5, cur
 
 const pl = new ProductList([p1, p2, remise]);
 
-const cart = new Cart({id: 'cart_1', productList: pl});
+
+const cart = new Cart({id: 'cart_1', productList: pl.addProduct(remise)});
 
 console.log(JSON.stringify(cart.getFacture(), null, '  '));
 
