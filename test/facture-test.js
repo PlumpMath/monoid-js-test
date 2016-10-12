@@ -34,6 +34,27 @@ const checkTaxExcludedDiscount = (facture, expected) => {
   )
 }
 
+const checkDiscountPerTaxExcl = (facture, expected) => {
+  expected.forEach((ex, i) => {
+    const reference = facture.bytaxes[i].total_per_tax_ht.amount
+    reference.should.be.closeTo(
+      ex,
+      leeway,
+      `${reference} is too far away from a plausible value`
+    )
+  })
+}
+
+const checkDiscountPerTaxIncl = (facture, expected) => {
+  expected.forEach((ex, i) => {
+    const reference = facture.bytaxes[i].total_per_tax_ttc.amount
+    reference.should.equal(
+      ex,
+      `${reference} is too far away from a plausible value`
+    )
+  })
+}
+
 describe('Tax Computations', () => {
   it('two heterogeneous products and a discount tax excluded', function () {
     const p1 = new Product({id: 1, name: 'Book', quantity: 1, tax: 0.1, price: new Price({amount: 11, currency: '€'})})
@@ -47,5 +68,7 @@ describe('Tax Computations', () => {
     checkTaxExcludedTotal(facture, 30)
     checkTaxIncludedTotal(facture, 25.71)
     checkTaxExcludedDiscount(facture, -4.29)
+    checkDiscountPerTaxIncl(facture, [9.43, 20.58])
+    checkDiscountPerTaxExcl(facture, [8.57, 17.14])
   })
 })

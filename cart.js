@@ -14,6 +14,7 @@ class Cart {
   getTotalsHT () { return this.productList.getTotalsHT() }
 
   getFacture () {
+    const byTaxes = this.productList.filterByTax()
     return {
       'Products': this.productList.products
             .filter(p => p.listable)
@@ -35,12 +36,27 @@ class Cart {
               'total (HC)': p.removeTax().total.printable
             })),
         'Total products (TTC)': this.getTotals(),
-        'Total HT': this.getTotalsHT()
+        'Total HT': this.getTotalsHT(),
+        'Total per each tax': byTaxes.map(t => {
+          return {
+            'Tax': `${round(t.products[0].tax * 100)}%`,
+            'Total payed for this tax (TTC)': t.getTotals(),
+            'Total payed for this tax (HT)': t.getTotalsHT(),
+            'Partial Remises': t.products
+              .filter(p => !p.listable)
+              .map(p => ({
+                'Name': p.name,
+                'total (TTC)': p.price.printable,
+                'total (HC)': p.removeTax().price.printable
+              }))
+          }
+        })
       }
     }
   }
 
   getMachineReadableFacture () {
+    const byTaxes = this.productList.filterByTax()
     return {
       products: this.productList.products
             .filter(p => p.listable)
@@ -63,7 +79,21 @@ class Cart {
             })),
         ttc: this.getTotals(),
         ht: this.getTotalsHT()
-      }
+      },
+      bytaxes: byTaxes.map(t => {
+        return {
+          tax: t.products[0].tax,
+          total_per_tax_ttc: t.getTotals(),
+          total_per_tax_ht: t.getTotalsHT(),
+          remise: t.products
+            .filter(p => !p.listable)
+            .map(p => ({
+              name: p.name,
+              ttc: p.price.amount,
+              ht: p.removeTax().price.amount
+            }))
+        }
+      })
     }
   }
 }

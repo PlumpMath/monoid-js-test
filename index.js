@@ -14,6 +14,11 @@ const pl = new ProductList([p1, p2, remise])
 const cart = new Cart({id: 'cart_1', productList: pl})
 
 console.log(JSON.stringify(cart.getFacture(), null, '  '))
+// console.log(JSON.stringify(cart.getMachineReadableFacture(), null, '  '))
+
+// console.log(JSON.stringify(pl.filterByTax(), null, '  '))
+
+// console.log(pl._getProductsWeigth())
 
 console.log('\n=====================================\n')
 
