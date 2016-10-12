@@ -1,3 +1,5 @@
+const round = (num) => (Math.trunc(num * 100) / 100)
+
 class ProductList {
   constructor (products) {
     this.products = this._evaluateProducts(products)
@@ -37,7 +39,15 @@ class ProductList {
 
   getAvgTax () {
     const listable = this.products.filter(p => p.listable)
-    return listable.map(p => p.tax).reduce((t1, t2) => (t1 + t2), 0) / listable.length
+    const taxes = listable.map(p => ({v: p.tax, w: p.price.amount}))
+    let total = 0
+    let weigth = 0
+    for (var i in taxes) {
+      total += taxes[i].v * taxes[i].w
+      weigth += taxes[i].w
+    }
+    const averageTax = round(total / weigth)
+    return averageTax
   }
 
   add (productList) {

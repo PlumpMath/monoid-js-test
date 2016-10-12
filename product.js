@@ -6,7 +6,7 @@ class Product {
     this.tax = tax || 0
     this.quantity = quantity !== undefined ? quantity : 1
     this.listable = listable !== undefined ? listable : true
-    this.total = this.price.multiplyFactor(this.quantity).printable
+    this.total = this.price.multiplyFactor(this.quantity)
   }
 
   includeTax () {

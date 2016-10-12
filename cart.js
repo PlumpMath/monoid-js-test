@@ -24,18 +24,45 @@ class Cart {
               'price (HT)': p.removeTax().price.printable,
               quantity: p.quantity,
               'total (TTC)': p.total,
-              'total (HT)': p.removeTax().total
+              'total (HT)': p.removeTax().total.printable
             })),
       'Totals': {
         'Remises': this.productList.products
             .filter(p => !p.listable)
             .map(p => ({
               name: p.name,
-              'total (TTC)': p.total,
-              'total (HC)': p.removeTax().total
+              'total (TTC)': p.total.printable,
+              'total (HC)': p.removeTax().total.printable
             })),
         'Total products (TTC)': this.getTotals(),
         'Total HT': this.getTotalsHT()
+      }
+    }
+  }
+
+  getMachineReadableFacture () {
+    return {
+      products: this.productList.products
+            .filter(p => p.listable)
+            .map(p => ({
+              name: p.name,
+              tax: `${round(p.tax * 100)}%`,
+              price_ttc: p.price.amount,
+              price_ht: p.removeTax().price.amount,
+              quantity: p.quantity,
+              total_ttc: p.total.amount,
+              total_ht: p.removeTax().total.amount
+            })),
+      totals: {
+        remises: this.productList.products
+            .filter(p => !p.listable)
+            .map(p => ({
+              name: p.name,
+              total_ttc: p.price.amount,
+              total_ht: p.removeTax().price.amount
+            })),
+        ttc: this.getTotals(),
+        ht: this.getTotalsHT()
       }
     }
   }
