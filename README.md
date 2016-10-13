@@ -13,22 +13,32 @@ Here an example of output:
 {
   "Products": [
     {
-      "name": "a",
+      "name": "Book",
       "tax": "10%",
-      "price (TTC)": "10€",
-      "price (HT)": "9.09€",
-      "quantity": 2,
-      "total (TTC)": "20€",
-      "total (HT)": "18.18€"
-    },
-    {
-      "name": "b",
-      "tax": "20%",
-      "price (TTC)": "12€",
+      "price (TTC)": "11€",
       "price (HT)": "10€",
       "quantity": 1,
-      "total (TTC)": "12€",
+      "total (TTC)": {
+        "amount": 11,
+        "currency": "€",
+        "printable": "11€",
+        "operations": "11€ * 1(qty)"
+      },
       "total (HT)": "10€"
+    },
+    {
+      "name": "DVD",
+      "tax": "20%",
+      "price (TTC)": "24€",
+      "price (HT)": "20€",
+      "quantity": 1,
+      "total (TTC)": {
+        "amount": 24,
+        "currency": "€",
+        "printable": "24€",
+        "operations": "24€ * 1(qty)"
+      },
+      "total (HT)": "20€"
     }
   ],
   "Totals": {
@@ -36,21 +46,67 @@ Here an example of output:
       {
         "name": "remise",
         "total (TTC)": "-5€",
-        "total (HC)": "-4.34€"
+        "total (HC)": "-4.3€"
       }
     ],
     "Total products (TTC)": {
-      "amount": 27,
+      "amount": 30,
       "currency": "€",
-      "printable": "27€",
-      "operations": "10€ * 2(qty) + 12€ * 1(qty) + -5€ * 1(qty)"
+      "printable": "30€",
+      "operations": "11€ * 1(qty) + 24€ * 1(qty) + -5€ * 1(qty)"
     },
     "Total HT": {
-      "amount": 23.84,
+      "amount": 25.7,
       "currency": "€",
-      "printable": "23.84€",
-      "operations": "10€ * 1.1 (tax of 10%) * 2(qty) + 12€ * 1.2 (tax of 20%) * 1(qty) + -5€ * 1.15 (tax of 15%) * 1(qty)"
-    }
+      "printable": "25.7€",
+      "operations": "11€ * 1.1 (tax of 10%) * 1(qty) + 24€ * 1.2 (tax of 20%) * 1(qty) + -5€ * 1.16 (tax of 16%) * 1(qty)"
+    },
+    "Total per tax": [
+      {
+        "Tax": "10%",
+        "Total payed for this tax (TTC)": {
+          "amount": 9.43,
+          "currency": "€",
+          "printable": "9.43€",
+          "operations": "11€ * 1(qty) + -1.57€ * 1(qty)"
+        },
+        "Total payed for this tax (HT)": {
+          "amount": 8.58,
+          "currency": "€",
+          "printable": "8.58€",
+          "operations": "11€ * 1.1 (tax of 10%) * 1(qty) + -1.57€ * 1.1 (tax of 10%) * 1(qty)"
+        },
+        "Partial Remises": [
+          {
+            "Name": "remise",
+            "total (TTC)": "-1.57€",
+            "total (HC)": "-1.42€"
+          }
+        ]
+      },
+      {
+        "Tax": "20%",
+        "Total payed for this tax (TTC)": {
+          "amount": 20.58,
+          "currency": "€",
+          "printable": "20.58€",
+          "operations": "24€ * 1(qty) + -3.42€ * 1(qty)"
+        },
+        "Total payed for this tax (HT)": {
+          "amount": 17.15,
+          "currency": "€",
+          "printable": "17.15€",
+          "operations": "24€ * 1.2 (tax of 20%) * 1(qty) + -3.42€ * 1.2 (tax of 20%) * 1(qty)"
+        },
+        "Partial Remises": [
+          {
+            "Name": "remise",
+            "total (TTC)": "-3.42€",
+            "total (HC)": "-2.85€"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
