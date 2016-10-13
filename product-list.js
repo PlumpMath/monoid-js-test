@@ -40,16 +40,12 @@ class ProductList {
   }
 
   getTotalsHT () {
-    // Consider quantity
-    if (this.products.length === 1) {
-      return this.products[0].removeTax(this).price
-    }
-    const sumPrice = this.products
-    .map(p => p.removeTax().price.multiplyFactor(p.quantity))
-    .reduce((p1, p2) => {
-      return p1.add(p2)
-    })
-    return sumPrice
+    return this.products.map(
+      p => p.removeTax().price.multiplyFactor(p.quantity)
+    )
+    .reduce(
+      (p1, p2) => p1.add(p2)
+    )
   }
 
   getAvgTax () {
