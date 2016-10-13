@@ -49,7 +49,7 @@ class Price {
   }
 
   static zero (currency) {
-    return new Price({amount: 0, operations: '', currency})
+    return new Price({amount: 0, currency})
   }
 }
 module.exports = Price

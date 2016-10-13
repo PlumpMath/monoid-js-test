@@ -27,17 +27,16 @@ class ProductList {
   }
 
   _getProductsWeigth () {
-    return this.products.filter(p => p.listable).map(p => p.price.amount).reduce((p1, p2) => p1 + p2)
+    return this.products.filter(p => p.listable).map(p => p.price.amount * p.quantity).reduce((p1, p2) => p1 + p2)
   }
 
   getTotals () {
-    // Consider quantity
-    if (this.products.length === 1) {
-      const p = this.products[0]
-      return p.price.multiplyFactor(p.quantity)
-    }
-    const sumPrice = this.products.map(p => p.price.multiplyFactor(p.quantity)).reduce((price, nextPrice) => price.add(nextPrice))
-    return sumPrice
+    return this.products.map(
+        p => p.price.multiplyFactor(p.quantity)
+      )
+      .reduce(
+        (price, nextPrice) => price.add(nextPrice)
+      )
   }
 
   getTotalsHT () {

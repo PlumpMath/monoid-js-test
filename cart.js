@@ -37,7 +37,7 @@ class Cart {
             })),
         'Total products (TTC)': this.getTotals(),
         'Total HT': this.getTotalsHT(),
-        'Total per each tax': byTaxes.map(t => {
+        'Total per tax': byTaxes.map(t => {
           return {
             'Tax': `${round(t.products[0].tax * 100)}%`,
             'Total payed for this tax (TTC)': t.getTotals(),
